@@ -1,0 +1,52 @@
+# 프로젝트 설정 파일
+
+# 데이터 설정
+data:
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  labels_path: "data/labels"
+  sequence_length: 30  # 프레임 시퀀스 길이
+  train_split: 0.8
+  
+# MediaPipe 설정
+mediapipe:
+  model_complexity: 1  # 0, 1, 2 (높을수록 정확하지만 느림)
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+  max_num_hands: 2
+  use_holistic: false  # true: Holistic 모드, false: Hands 모드
+
+# 모델 설정
+model:
+  type: "LSTM"  # LSTM, GRU, Transformer
+  input_dim: 63  # 21개 랜드마크 * 3차원 (x, y, z)
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.3
+  num_classes: 10  # 수화 단어 개수
+  
+# 학습 설정
+training:
+  batch_size: 32
+  epochs: 100
+  learning_rate: 0.001
+  optimizer: "adam"
+  loss: "categorical_crossentropy"
+  early_stopping_patience: 10
+  checkpoint_path: "models/checkpoints"
+  model_save_path: "models/saved_models"
+
+# 추론 설정
+inference:
+  confidence_threshold: 0.7
+  camera_id: 0
+  display_width: 1280
+  display_height: 720
+  fps_display: true
+
+# TTS 설정
+tts:
+  engine: "pyttsx3"  # pyttsx3 또는 gtts
+  language: "ko"
+  rate: 150
+  volume: 1.0
