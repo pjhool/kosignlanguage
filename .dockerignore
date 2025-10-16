@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# 데이터 (볼륨으로 마운트됨)
+data/raw/*
+data/processed/*
+models/checkpoints/*
+models/saved_models/*.h5
+models/saved_models/*.pkl
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 로그
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+temp/
+*.zip
+*.tar.gz
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 문서 (선택사항 - 포함하려면 주석 처리)
+# README.md
+# TROUBLESHOOTING.md
+# ROADMAP.md

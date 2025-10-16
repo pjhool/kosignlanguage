@@ -1,0 +1,68 @@
+version: '3.8'
+
+# GPU 지원 버전 (NVIDIA Docker 필요)
+
+services:
+  # GPU 지원 메인 서비스
+  mediapipe-app-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    container_name: mediapipe_sign_language_gpu
+    image: mediapipe-sign-language:gpu
+    
+    # 볼륨 마운트
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config.yaml:/app/config.yaml
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/video0:/dev/video0
+    
+    # 환경 변수
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    
+    # 디바이스
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+    
+    # GPU 설정
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    runtime: nvidia
+    privileged: true
+    network_mode: host
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # GPU 지원 학습 서비스
+  trainer-gpu:
+    extends: mediapipe-app-gpu
+    container_name: mediapipe_trainer_gpu
+    profiles:
+      - training-gpu
+    command: python main.py train --data data/raw
+
+  # GPU 지원 추론 서비스
+  inference-gpu:
+    extends: mediapipe-app-gpu
+    container_name: mediapipe_inference_gpu
+    profiles:
+      - inference-gpu
+    command: python main.py inference
+
+volumes:
+  data:
+  models:

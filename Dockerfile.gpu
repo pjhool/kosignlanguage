@@ -1,0 +1,54 @@
+# GPU 지원 Dockerfile (NVIDIA CUDA)
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# Python 설치
+RUN apt-get update && apt-get install -y \
+    python3.9 \
+    python3-pip \
+    python3-dev \
+    && ln -s /usr/bin/python3.9 /usr/bin/python \
+    && rm -rf /var/lib/apt/lists/*
+
+# 작업 디렉토리
+WORKDIR /app
+
+# 시스템 의존성
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgstreamer1.0-0 \
+    libgstreamer-plugins-base1.0-0 \
+    ffmpeg \
+    espeak \
+    pulseaudio \
+    alsa-utils \
+    v4l-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 의존성 (GPU 버전)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# TensorFlow GPU 버전 설치
+RUN pip install --no-cache-dir tensorflow-gpu==2.15.0
+
+# 프로젝트 파일
+COPY . .
+
+# 디렉토리 생성
+RUN mkdir -p data/raw data/processed data/labels \
+    models/checkpoints models/saved_models
+
+# 환경 변수
+ENV PYTHONUNBUFFERED=1
+ENV DISPLAY=:0
+ENV CUDA_VISIBLE_DEVICES=0
+
+# 포트
+EXPOSE 8000
+
+CMD ["python", "main.py", "--help"]
